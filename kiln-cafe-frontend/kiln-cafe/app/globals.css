@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fraunces: "Fraunces", serif;
+  --font-inter: "Inter", sans-serif;
+  --font-jetbrains: "JetBrains Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-wheat text-charcoal font-body antialiased;
+}
+
+::selection {
+  @apply bg-brass text-ink;
+}
+
+/* visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid theme("colors.brass");
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.tasting-tag {
+  @apply inline-block rounded-full border border-brass/40 px-2.5 py-0.5 text-xs font-mono uppercase tracking-wide text-brass;
+}
+
+.paper-edge {
+  clip-path: polygon(
+    0% 2%, 3% 0%, 8% 1%, 14% 0%, 20% 1%, 27% 0%, 34% 1%, 41% 0%, 48% 1%,
+    55% 0%, 62% 1%, 69% 0%, 76% 1%, 83% 0%, 90% 1%, 96% 0%, 100% 2%,
+    100% 98%, 96% 100%, 90% 99%, 83% 100%, 76% 99%, 69% 100%, 62% 99%,
+    55% 100%, 48% 99%, 41% 100%, 34% 99%, 27% 100%, 20% 99%, 14% 100%,
+    8% 99%, 3% 100%, 0% 98%
+  );
+}

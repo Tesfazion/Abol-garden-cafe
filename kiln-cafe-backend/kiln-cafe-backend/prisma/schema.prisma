@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite does not support native enums — values are stored as plain strings
+// and validated at the application layer (Zod schemas + service logic).
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("CUSTOMER") // CUSTOMER | STAFF | ADMIN
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders   Order[]
+  bookings Booking[]
+
+  @@index([email])
+}
+
+model MenuItem {
+  id           String   @id @default(uuid())
+  name         String
+  category     String   // COFFEE | BAKES | PLATES
+  price        Decimal
+  description  String
+  tastingNotes String   @default("[]") // JSON-encoded string[]
+  origin       String?
+  image        String
+  hot          Boolean  @default(false)
+  available    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([category])
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  user            User?    @relation(fields: [userId], references: [id])
+  userId          String?
+  guestEmail      String?
+  guestName       String?
+  status          String   @default("PENDING") // PENDING | CONFIRMED | PREPARING | OUT_FOR_DELIVERY | DELIVERED | CANCELLED
+  deliveryAddress String
+  subtotal        Decimal
+  deliveryEtaMins Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItemId String
+  quantity   Int
+  unitPrice  Decimal
+
+  @@index([orderId])
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  name      String
+  email     String
+  phone     String
+  partySize Int
+  date      DateTime
+  time      String   // stored as "HH:mm", validated at the app layer
+  status    String   @default("PENDING") // PENDING | CONFIRMED | CANCELLED | COMPLETED | NO_SHOW
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date, time])
+}
+
+// Simple capacity model: total seats available per timeslot.
+// Booking service sums partySize for a given date+time against this limit.
+model TableCapacity {
+  id       String   @id @default(uuid())
+  date     DateTime
+  time     String
+  capacity Int      @default(24)
+
+  @@unique([date, time])
+}
