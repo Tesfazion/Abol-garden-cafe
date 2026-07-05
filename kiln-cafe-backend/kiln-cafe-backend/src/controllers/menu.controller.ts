@@ -10,7 +10,7 @@ import {
 
 export const menuItemSchema = z.object({
   name:         z.string().min(1).max(120),
-  category:     z.enum(["COFFEE", "BAKES", "PLATES"]),
+  category:     z.enum(["COFFEE", "BAKES", "PLATES", "DRINKS"]),
   price:        z.number().positive(),
   description:  z.string().min(1).max(500),
   tastingNotes: z.array(z.string()).optional(),

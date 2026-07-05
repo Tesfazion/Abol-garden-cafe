@@ -6,44 +6,46 @@ echo.
 echo Starting your coffee shop website...
 echo.
 echo This will open:
-echo   - Website:  http://localhost:1995
 echo   - Backend:  http://localhost:8869
+echo   - Website:  http://localhost:1995
 echo.
-echo Press any key to continue...
-pause >nul
+echo MongoDB Compass should already be connected.
+echo.
+pause
 
 echo.
-echo Starting all services...
+echo [1/3] Starting Backend Server...
 echo.
+start "Kiln Backend" cmd /k "cd /d "%~dp0kiln-cafe-backend\kiln-cafe-backend" && npm run dev"
 
-powershell -ExecutionPolicy Bypass -File "%~dp0start-all.ps1"
+echo Waiting for backend to start...
+timeout /t 10 /nobreak >nul
 
-if errorlevel 1 (
-    echo.
-    echo ====================================================
-    echo   ERROR: Failed to start services
-    echo ====================================================
-    echo.
-    echo Make sure MongoDB is running first:
-    echo   docker run --name kiln-mongo -p 27017:27017 -d mongo:latest
-    echo.
-    pause
-    exit /b 1
-)
+echo.
+echo [2/3] Starting Frontend Website...
+echo.
+start "Kiln Frontend" cmd /k "cd /d "%~dp0kiln-cafe-frontend\kiln-cafe" && npm run dev -- --port 1995"
+
+echo.
+echo [3/3] Waiting for website to compile...
+timeout /t 15 /nobreak >nul
 
 echo.
 echo ====================================================
-echo   Website is starting!
+echo   Opening your website in browser...
 echo ====================================================
 echo.
-echo Open your browser and go to:
-echo   http://localhost:1995
-echo.
-echo Press any key to open browser automatically...
-pause >nul
-
 start http://localhost:1995
 
 echo.
-echo Browser opened! Enjoy your website!
+echo ====================================================
+echo   Your website is running!
+echo ====================================================
 echo.
+echo   Backend:  http://localhost:8869
+echo   Website:  http://localhost:1995
+echo.
+echo Two new windows opened - Keep them running!
+echo Close this window when done.
+echo.
+pause

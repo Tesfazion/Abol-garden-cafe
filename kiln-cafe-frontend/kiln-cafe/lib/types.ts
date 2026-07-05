@@ -1,10 +1,10 @@
-export type MenuCategory = "coffee" | "bakes" | "plates";
+export type MenuCategory = "coffee" | "bakes" | "plates" | "drinks";
 
 export interface MenuItem {
   id: string;
   name: string;
   category: MenuCategory;
-  price: number; // in EUR
+  price: number; // in ETB (Ethiopian Birr)
   description: string;
   tastingNotes?: string[]; // e.g. ["stone fruit", "honey", "cardamom"]
   origin?: string; // for coffee: farm/region

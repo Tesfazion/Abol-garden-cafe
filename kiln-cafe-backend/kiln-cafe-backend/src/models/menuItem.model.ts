@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMenuItem extends Document {
   name: string;
-  category: "COFFEE" | "BAKES" | "PLATES";
+  category: "COFFEE" | "BAKES" | "PLATES" | "DRINKS";
   price: number;
   description: string;
   tastingNotes: string[];
@@ -17,7 +17,7 @@ export interface IMenuItem extends Document {
 const menuItemSchema = new Schema<IMenuItem>(
   {
     name:         { type: String, required: true, trim: true, maxlength: 120 },
-    category:     { type: String, enum: ["COFFEE", "BAKES", "PLATES"], required: true },
+    category:     { type: String, enum: ["COFFEE", "BAKES", "PLATES", "DRINKS"], required: true },
     price:        { type: Number, required: true, min: 0 },
     description:  { type: String, required: true, maxlength: 500 },
     tastingNotes: [{ type: String }],

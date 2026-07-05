@@ -48,7 +48,7 @@ export default function CartDrawer() {
                         {line.item.name}
                       </p>
                       <p className="font-mono text-xs text-charcoal/50">
-                        €{line.item.price.toFixed(2)}
+                        {line.item.price.toFixed(0)} ETB
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <button
@@ -75,7 +75,7 @@ export default function CartDrawer() {
                       </div>
                     </div>
                     <p className="font-mono text-sm text-ink">
-                      €{(line.item.price * line.quantity).toFixed(2)}
+                      {(line.item.price * line.quantity).toFixed(0)} ETB
                     </p>
                   </li>
                 ))}
@@ -86,7 +86,7 @@ export default function CartDrawer() {
           <div className="border-t border-charcoal/10 px-6 py-5">
             <div className="mb-4 flex items-center justify-between font-mono text-sm">
               <span className="text-charcoal/60">Subtotal</span>
-              <span className="text-ink">€{subtotal.toFixed(2)}</span>
+              <span className="text-forest">{subtotal.toFixed(0)} ETB</span>
             </div>
             <Link
               href="/order"

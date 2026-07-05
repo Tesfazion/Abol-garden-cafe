@@ -1,0 +1,150 @@
+╔════════════════════════════════════════════════════════════════╗
+║           ABOL GARDEN CAFE - PHOTO CHECKLIST                   ║
+║              Print this and check off as you go!               ║
+╚════════════════════════════════════════════════════════════════╝
+
+LOCATION FOR ALL PHOTOS:
+c:\Protected File\Real Project\Cafe file\kiln-cafe-frontend\kiln-cafe\public\images\
+
+═══════════════════════════════════════════════════════════════════
+
+COFFEE PHOTOS (6 required):
+─────────────────────────────────────────────────────────────────
+[ ] buna-ceremony.jpg
+    What: Traditional coffee ceremony with jebena pot
+    Tip: Show the roasting pan and serving cups
+
+[ ] yirgacheffe.jpg
+    What: Cup of Yirgacheffe coffee
+    Tip: Show the coffee in a nice cup, maybe with beans
+
+[ ] sidamo-coffee.jpg
+    What: Sidamo coffee being served
+    Tip: Different angle than Yirgacheffe
+
+[ ] harar-coffee.jpg
+    What: Harar coffee
+    Tip: Show the rich, dark color
+
+[ ] macchiato.jpg
+    What: Ethiopian-style layered macchiato
+    Tip: Show the beautiful layers in a glass
+
+[ ] spris.jpg
+    What: Unique Spris drink (coffee + Sprite)
+    Tip: Show both ingredients together
+
+═══════════════════════════════════════════════════════════════════
+
+FOOD PHOTOS (4 required):
+─────────────────────────────────────────────────────────────────
+[ ] injera-combo.jpg
+    What: Injera with multiple wats (stews)
+    Tip: Show the colorful variety on the injera
+
+[ ] tibs.jpg
+    What: Sizzling tibs (stir-fry)
+    Tip: Show the meat/veggies, maybe in serving pan
+
+[ ] kitfo.jpg
+    What: Kitfo (minced meat)
+    Tip: Traditional presentation with side dishes
+
+[ ] fasting-platter.jpg
+    What: Vegan platter with multiple dishes
+    Tip: Show variety of colorful vegan items
+
+═══════════════════════════════════════════════════════════════════
+
+BAKES (2 required):
+─────────────────────────────────────────────────────────────────
+[ ] ambasha.jpg
+    What: Soft, round ambasha bread
+    Tip: Show texture, maybe cut in half
+
+[ ] dabo.jpg
+    What: Dabo (honey bread) whole or sliced
+    Tip: Show the sweet, dense texture
+
+═══════════════════════════════════════════════════════════════════
+
+DRINKS (1 required):
+─────────────────────────────────────────────────────────────────
+[ ] fresh-juice.jpg
+    What: Fresh fruit juice in glass
+    Tip: Bright colors (mango, papaya, mixed)
+
+═══════════════════════════════════════════════════════════════════
+
+OPTIONAL BUT RECOMMENDED:
+─────────────────────────────────────────────────────────────────
+[ ] hero-background.jpg
+    What: Main beautiful photo of your café
+    Tip: Garden view, or cozy interior - best photo!
+
+[ ] cafe-exterior.jpg
+    What: Front entrance of Abol Garden Cafe
+    Tip: Daytime, clear shot, shows signage
+
+[ ] garden-seating.jpg
+    What: Outdoor seating area with tables
+    Tip: Show the garden atmosphere
+
+[ ] staff-photo.jpg
+    What: Friendly staff serving customers
+    Tip: Smiling, welcoming, natural poses
+
+═══════════════════════════════════════════════════════════════════
+
+PHOTO REQUIREMENTS:
+─────────────────────────────────────────────────────────────────
+Size:   1200-1600 pixels wide
+Format: JPG or PNG
+Max:    500KB per file
+Style:  Natural lighting, clear focus, appetizing!
+
+COMPRESS PHOTOS AT:
+https://tinypng.com
+
+═══════════════════════════════════════════════════════════════════
+
+QUICK TIPS:
+─────────────────────────────────────────────────────────────────
+✓ Use natural daylight (not flash!)
+✓ Clean tables/surfaces before shooting
+✓ Include Ethiopian elements (colors, patterns)
+✓ Show steam from hot items
+✓ Use garnishes to make food pop
+✓ Take multiple shots, pick the best
+✓ Food should look fresh and delicious
+✓ Garden shots: show plants and atmosphere
+
+═══════════════════════════════════════════════════════════════════
+
+WHEN YOU'RE DONE:
+─────────────────────────────────────────────────────────────────
+1. [ ] All 13 required photos in /public/images/
+2. [ ] File names match exactly (check spelling!)
+3. [ ] All photos compressed under 500KB
+4. [ ] Tested on website (restart to see changes)
+5. [ ] Looks great! Ready to launch! 🚀
+
+═══════════════════════════════════════════════════════════════════
+
+HOW TO VIEW:
+─────────────────────────────────────────────────────────────────
+1. Place photos in this folder
+2. Restart website:
+   - Close both PowerShell windows
+   - Double-click START_EASY.bat
+   - Wait 30 seconds
+3. Open: http://localhost:1995
+4. Browse menu to see your photos!
+
+═══════════════════════════════════════════════════════════════════
+
+Remember: Good photos = More customers! 📸☕
+
+Take your time and get great shots of Abol Garden Cafe!
+
+ሰላም (Selam)! Good luck! 🇪🇹

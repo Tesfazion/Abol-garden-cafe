@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
+import { AuthProvider } from "@/lib/auth-context";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -25,9 +26,15 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kiln Coffee House",
+  title: "Abole Garden Café | Garden Coffee & Food in Wolaita Soddo",
   description:
-    "Wood-fired bakes and small-batch roasted coffee. Order delivery or book a table.",
+    "Abole Garden Café in Wolaita Soddo — shaded garden seating, Ethiopian buna, Abole Special combo, shawarma, pizza, and relaxed café vibes. Reserve a table or order online.",
+  openGraph: {
+    title: "Abole Garden Café",
+    description:
+      "Garden café life, buna & good food in Wolaita Soddo, Ethiopia.",
+    images: ["/images/logo.jpeg"],
+  },
 };
 
 export default function RootLayout({
@@ -40,11 +47,13 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${inter.variable} ${jetbrains.variable}`}
       >
-        <CartProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

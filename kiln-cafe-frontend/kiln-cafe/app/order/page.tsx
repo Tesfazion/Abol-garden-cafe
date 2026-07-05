@@ -90,7 +90,7 @@ export default function OrderPage() {
               </p>
             </div>
             <p className="font-mono text-sm text-ink">
-              €{(line.item.price * line.quantity).toFixed(2)}
+              {(line.item.price * line.quantity).toFixed(0)} ETB
             </p>
           </li>
         ))}
@@ -98,7 +98,7 @@ export default function OrderPage() {
 
       <div className="flex items-center justify-between border-t border-charcoal/10 py-4 font-mono text-base">
         <span>Total</span>
-        <span>€{subtotal.toFixed(2)}</span>
+        <span>{subtotal.toFixed(0)} ETB</span>
       </div>
 
       <form onSubmit={handleCheckout} className="mt-6 space-y-5">

@@ -10,7 +10,7 @@ async function main() {
 
   const app = createApp();
   app.listen(PORT, () => {
-    console.log(`Kiln Coffee House API listening on http://localhost:${PORT}`);
+    console.log(`Abol Garden Cafe API listening on http://localhost:${PORT}`);
   });
 }
 

@@ -5,7 +5,7 @@ import { backendFetch } from "./backend";
 interface BackendMenuItem {
   id: string;
   name: string;
-  category: "COFFEE" | "BAKES" | "PLATES";
+  category: "COFFEE" | "BAKES" | "PLATES" | "DRINKS";
   price: number; // MongoDB/Mongoose returns a native number
   description: string;
   tastingNotes: string[];
