@@ -7,7 +7,6 @@ orders, bookings, and role-based auth.
 
 ```bash
 npm install
-cp .env.example .env       # then edit MONGO_URI, JWT_SECRET
 npm run seed               # creates admin user + sample menu
 npm run dev                # http://localhost:8869
 ```

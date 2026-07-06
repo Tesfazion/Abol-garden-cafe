@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { menu } from "@/data/menu";
 
@@ -18,13 +18,31 @@ interface MenuItem {
 }
 
 export default function AdminMenuPage() {
-  const [menuItems] = useState<MenuItem[]>(
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(
     menu.map(item => ({ ...item, available: true }))
   );
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Form state for add/edit
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "coffee",
+    price: 0,
+    description: "",
+    image: "",
+    available: true,
+    hot: false,
+    origin: "",
+    tastingNotes: "",
+  });
 
   const categories = [
     { id: "all", label: "All Items" },
@@ -63,6 +81,120 @@ export default function AdminMenuPage() {
     return cat ? cat.label : category;
   };
 
+  // Handle image upload
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setFormData({ ...formData, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Open add modal
+  const handleAddNew = () => {
+    setFormData({
+      name: "",
+      category: "coffee",
+      price: 0,
+      description: "",
+      image: "",
+      available: true,
+      hot: false,
+      origin: "",
+      tastingNotes: "",
+    });
+    setImagePreview("");
+    setShowAddModal(true);
+  };
+
+  // Open edit modal
+  const handleEdit = (item: MenuItem) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      description: item.description,
+      image: item.image,
+      available: item.available || true,
+      hot: item.hot || false,
+      origin: item.origin || "",
+      tastingNotes: item.tastingNotes?.join(", ") || "",
+    });
+    setImagePreview(item.image);
+    setShowEditModal(true);
+  };
+
+  // Save new item
+  const handleSaveNew = () => {
+    const newItem: MenuItem = {
+      id: `item-${Date.now()}`,
+      name: formData.name,
+      category: formData.category,
+      price: formData.price,
+      description: formData.description,
+      image: formData.image,
+      available: formData.available,
+      hot: formData.hot,
+      origin: formData.origin || undefined,
+      tastingNotes: formData.tastingNotes ? formData.tastingNotes.split(",").map(n => n.trim()) : undefined,
+    };
+    setMenuItems([...menuItems, newItem]);
+    setShowAddModal(false);
+    alert("Menu item added successfully!");
+  };
+
+  // Save edited item
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+    
+    const updatedItems = menuItems.map(item => {
+      if (item.id === editingItem.id) {
+        return {
+          ...item,
+          name: formData.name,
+          category: formData.category,
+          price: formData.price,
+          description: formData.description,
+          image: formData.image,
+          available: formData.available,
+          hot: formData.hot,
+          origin: formData.origin || undefined,
+          tastingNotes: formData.tastingNotes ? formData.tastingNotes.split(",").map(n => n.trim()) : undefined,
+        };
+      }
+      return item;
+    });
+    setMenuItems(updatedItems);
+    setShowEditModal(false);
+    setEditingItem(null);
+    alert("Menu item updated successfully!");
+  };
+
+  // Toggle availability
+  const handleToggleAvailability = (itemId: string) => {
+    const updatedItems = menuItems.map(item => {
+      if (item.id === itemId) {
+        return { ...item, available: !item.available };
+      }
+      return item;
+    });
+    setMenuItems(updatedItems);
+  };
+
+  // Delete item
+  const handleDelete = (itemId: string) => {
+    if (confirm("Are you sure you want to delete this item?")) {
+      setMenuItems(menuItems.filter(item => item.id !== itemId));
+      setSelectedItem(null);
+      alert("Menu item deleted successfully!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -83,7 +215,10 @@ export default function AdminMenuPage() {
               </svg>
               Export Menu
             </button>
-            <button className="btn btn-primary flex items-center gap-2">
+            <button
+              onClick={handleAddNew}
+              className="btn btn-primary flex items-center gap-2"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
@@ -215,6 +350,7 @@ export default function AdminMenuPage() {
                     src={item.image}
                     alt={item.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
                   />
                   {item.hot && (
@@ -254,7 +390,10 @@ export default function AdminMenuPage() {
                     >
                       View Details
                     </button>
-                    <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <button
+                      onClick={() => handleEdit(item)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
                       <svg className="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
@@ -299,6 +438,7 @@ export default function AdminMenuPage() {
                             src={item.image}
                             alt={item.name}
                             fill
+                            sizes="64px"
                             className="object-cover"
                           />
                         </div>
@@ -341,6 +481,7 @@ export default function AdminMenuPage() {
                           </svg>
                         </button>
                         <button
+                          onClick={() => handleEdit(item)}
                           className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors"
                           title="Edit"
                         >
@@ -349,6 +490,7 @@ export default function AdminMenuPage() {
                           </svg>
                         </button>
                         <button
+                          onClick={() => handleToggleAvailability(item.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Toggle Availability"
                         >
@@ -391,6 +533,7 @@ export default function AdminMenuPage() {
                   src={selectedItem.image}
                   alt={selectedItem.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover"
                 />
                 {selectedItem.hot && (
@@ -449,19 +592,28 @@ export default function AdminMenuPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <button className="w-full btn btn-primary flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleEdit(selectedItem)}
+                      className="w-full btn btn-primary flex items-center justify-center gap-2"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Edit Item
                     </button>
-                    <button className="w-full btn btn-outline flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleToggleAvailability(selectedItem.id)}
+                      className="w-full btn btn-outline flex items-center justify-center gap-2"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                       </svg>
                       Toggle Availability
                     </button>
-                    <button className="w-full btn text-red-600 border border-red-200 hover:bg-red-50 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleDelete(selectedItem.id)}
+                      className="w-full btn text-red-600 border border-red-200 hover:bg-red-50 flex items-center justify-center gap-2"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -469,6 +621,333 @@ export default function AdminMenuPage() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Item Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold text-forest">Add New Menu Item</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Item Image</label>
+                <div className="flex gap-4">
+                  {imagePreview && (
+                    <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200">
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-brass transition-colors flex flex-col items-center gap-2"
+                    >
+                      <svg className="w-8 h-8 text-charcoal-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <span className="text-sm text-charcoal">Click to upload image</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Item Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="e.g., Traditional Ethiopian Buna"
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="coffee">Coffee & Tea</option>
+                  <option value="drinks">Beverages</option>
+                  <option value="plates">Main Dishes</option>
+                  <option value="bakes">Bakes & Desserts</option>
+                </select>
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Price (ETB)</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  rows={3}
+                  placeholder="Describe the item..."
+                />
+              </div>
+
+              {/* Origin (optional for coffee) */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Origin (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.origin}
+                  onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="e.g., Yirgacheffe, Ethiopia"
+                />
+              </div>
+
+              {/* Tasting Notes */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Tasting Notes (comma separated)</label>
+                <input
+                  type="text"
+                  value={formData.tastingNotes}
+                  onChange={(e) => setFormData({ ...formData, tastingNotes: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="e.g., Floral, Citrus, Honey"
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.hot}
+                    onChange={(e) => setFormData({ ...formData, hot: e.target.checked })}
+                    className="w-4 h-4 text-brass focus:ring-brass border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-charcoal">🔥 Hot Item</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.available}
+                    onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
+                    className="w-4 h-4 text-brass focus:ring-brass border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-charcoal">Available</span>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-charcoal font-heading font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNew}
+                  className="flex-1 px-6 py-3 bg-brass text-white rounded-lg font-heading font-medium hover:bg-brass-dark transition-colors"
+                >
+                  Add Item
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Item Modal */}
+      {showEditModal && editingItem && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold text-forest">Edit Menu Item</h2>
+              <button
+                onClick={() => { setShowEditModal(false); setEditingItem(null); }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Item Image</label>
+                <div className="flex gap-4">
+                  {imagePreview && (
+                    <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200">
+                      <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-brass transition-colors flex flex-col items-center gap-2"
+                    >
+                      <svg className="w-8 h-8 text-charcoal-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <span className="text-sm text-charcoal">Change image</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Item Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="coffee">Coffee & Tea</option>
+                  <option value="drinks">Beverages</option>
+                  <option value="plates">Main Dishes</option>
+                  <option value="bakes">Bakes & Desserts</option>
+                </select>
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Price (ETB)</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  rows={3}
+                />
+              </div>
+
+              {/* Origin */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Origin (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.origin}
+                  onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              {/* Tasting Notes */}
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Tasting Notes (comma separated)</label>
+                <input
+                  type="text"
+                  value={formData.tastingNotes}
+                  onChange={(e) => setFormData({ ...formData, tastingNotes: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.hot}
+                    onChange={(e) => setFormData({ ...formData, hot: e.target.checked })}
+                    className="w-4 h-4 text-brass focus:ring-brass border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-charcoal">🔥 Hot Item</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.available}
+                    onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
+                    className="w-4 h-4 text-brass focus:ring-brass border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-charcoal">Available</span>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingItem(null); }}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-charcoal font-heading font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 px-6 py-3 bg-brass text-white rounded-lg font-heading font-medium hover:bg-brass-dark transition-colors"
+                >
+                  Save Changes
+                </button>
               </div>
             </div>
           </div>

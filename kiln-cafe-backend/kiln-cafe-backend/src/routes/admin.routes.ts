@@ -15,7 +15,7 @@ router.get("/summary", async (_req: Request, res: Response, next: NextFunction) 
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const [pendingOrders, todaysBookings, revenueResult] = await Promise.all([
+    const [pendingOrders, todaysBookings, revenueResult, ordersToday] = await Promise.all([
       Order.countDocuments({ status: { $in: ["PENDING", "CONFIRMED", "PREPARING"] } }),
 
       Booking.countDocuments({
@@ -32,9 +32,15 @@ router.get("/summary", async (_req: Request, res: Response, next: NextFunction) 
         },
         { $group: { _id: null, total: { $sum: "$subtotal" } } },
       ]),
+
+      Order.countDocuments({
+        createdAt: { $gte: startOfDay, $lte: endOfDay },
+        status:    { $ne: "CANCELLED" },
+      }),
     ]);
 
     res.json({
+      ordersToday,
       pendingOrders,
       todaysBookings,
       revenueToday: (revenueResult[0]?.total as number | undefined) ?? 0,

@@ -12,6 +12,7 @@ export default function AboutPage() {
             src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070"
             alt="Garden café background"
             fill
+            sizes="100vw"
             className="object-cover"
           />
         </div>
@@ -70,6 +71,7 @@ export default function AboutPage() {
                 src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2074"
                 alt="Restaurant interior"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>
@@ -151,6 +153,7 @@ export default function AboutPage() {
                 src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070"
                 alt="Food presentation"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>

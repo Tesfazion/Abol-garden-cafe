@@ -26,6 +26,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("http://localhost:1995"),
   title: "Abole Garden Café | Garden Coffee & Food in Wolaita Soddo",
   description:
     "Abole Garden Café in Wolaita Soddo — shaded garden seating, Ethiopian buna, Abole Special combo, shawarma, pizza, and relaxed café vibes. Reserve a table or order online.",

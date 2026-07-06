@@ -19,8 +19,10 @@ export default function StaffPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
 
-  const [staff] = useState<StaffMember[]>([
+  const [staff, setStaff] = useState<StaffMember[]>([
     {
       id: "1",
       name: "Abebe Kebede",
@@ -95,6 +97,17 @@ export default function StaffPage() {
     },
   ]);
 
+  // Form state for add/edit
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "BARISTA" as StaffMember["role"],
+    salary: 0,
+    shift: "Morning (6AM-2PM)",
+    status: "active" as "active" | "inactive",
+  });
+
   const roles = ["all", "ADMIN", "MANAGER", "BARISTA", "WAITER", "DELIVERY"];
 
   const filteredStaff = staff.filter((member) => {
@@ -156,6 +169,75 @@ export default function StaffPage() {
         );
       default:
         return null;
+    }
+  };
+
+  // Handle add new staff
+  const handleAddNew = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      role: "BARISTA",
+      salary: 0,
+      shift: "Morning (6AM-2PM)",
+      status: "active",
+    });
+    setShowAddModal(true);
+  };
+
+  // Handle edit staff
+  const handleEdit = (member: StaffMember) => {
+    setEditingStaff(member);
+    setFormData({
+      name: member.name,
+      email: member.email,
+      phone: member.phone,
+      role: member.role,
+      salary: member.salary,
+      shift: member.shift,
+      status: member.status,
+    });
+    setShowEditModal(true);
+  };
+
+  // Save new staff
+  const handleSaveNew = () => {
+    const newStaff: StaffMember = {
+      id: `staff-${Date.now()}`,
+      ...formData,
+      hireDate: new Date().toISOString().split('T')[0],
+      performance: 85,
+    };
+    setStaff([...staff, newStaff]);
+    setShowAddModal(false);
+    alert("Staff member added successfully!");
+  };
+
+  // Save edited staff
+  const handleSaveEdit = () => {
+    if (!editingStaff) return;
+    
+    const updatedStaff = staff.map(member => {
+      if (member.id === editingStaff.id) {
+        return {
+          ...member,
+          ...formData,
+        };
+      }
+      return member;
+    });
+    setStaff(updatedStaff);
+    setShowEditModal(false);
+    setEditingStaff(null);
+    alert("Staff member updated successfully!");
+  };
+
+  // Delete staff
+  const handleDelete = (staffId: string) => {
+    if (confirm("Are you sure you want to remove this staff member?")) {
+      setStaff(staff.filter(member => member.id !== staffId));
+      alert("Staff member removed successfully!");
     }
   };
 
@@ -341,10 +423,16 @@ export default function StaffPage() {
 
               {/* Actions */}
               <div className="flex gap-2">
-                <button className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-heading font-medium hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => handleEdit(member)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-heading font-medium hover:bg-gray-50 transition-colors"
+                >
                   Edit
                 </button>
-                <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => handleDelete(member.id)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                >
                   <svg className="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
@@ -354,6 +442,246 @@ export default function StaffPage() {
           ))}
         </div>
       </div>
+
+      {/* Add Staff Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold text-forest">Add New Staff Member</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="e.g., Abebe Kebede"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="email@abolgardencafe.et"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="+251 91 111 2222"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as StaffMember["role"] })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="ADMIN">Admin</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="BARISTA">Barista</option>
+                  <option value="WAITER">Waiter</option>
+                  <option value="DELIVERY">Delivery</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Monthly Salary (ETB)</label>
+                <input
+                  type="number"
+                  value={formData.salary}
+                  onChange={(e) => setFormData({ ...formData, salary: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Shift</label>
+                <select
+                  value={formData.shift}
+                  onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="Morning (6AM-2PM)">Morning (6AM-2PM)</option>
+                  <option value="Afternoon (2PM-10PM)">Afternoon (2PM-10PM)</option>
+                  <option value="Full Day">Full Day</option>
+                  <option value="Night Shift">Night Shift</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as "active" | "inactive" })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-charcoal font-heading font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNew}
+                  className="flex-1 px-6 py-3 bg-brass text-white rounded-lg font-heading font-medium hover:bg-brass-dark transition-colors"
+                >
+                  Add Staff Member
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Staff Modal */}
+      {showEditModal && editingStaff && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold text-forest">Edit Staff Member</h2>
+              <button
+                onClick={() => { setShowEditModal(false); setEditingStaff(null); }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as StaffMember["role"] })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="ADMIN">Admin</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="BARISTA">Barista</option>
+                  <option value="WAITER">Waiter</option>
+                  <option value="DELIVERY">Delivery</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Monthly Salary (ETB)</label>
+                <input
+                  type="number"
+                  value={formData.salary}
+                  onChange={(e) => setFormData({ ...formData, salary: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Shift</label>
+                <select
+                  value={formData.shift}
+                  onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="Morning (6AM-2PM)">Morning (6AM-2PM)</option>
+                  <option value="Afternoon (2PM-10PM)">Afternoon (2PM-10PM)</option>
+                  <option value="Full Day">Full Day</option>
+                  <option value="Night Shift">Night Shift</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-heading font-semibold text-charcoal mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as "active" | "inactive" })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brass focus:border-brass"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => { setShowEditModal(false); setEditingStaff(null); }}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-charcoal font-heading font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 px-6 py-3 bg-brass text-white rounded-lg font-heading font-medium hover:bg-brass-dark transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

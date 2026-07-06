@@ -23,7 +23,7 @@ export default function MenuCard({ item }: { item: MenuItem }) {
   return (
     <article className="card hover-lift group">
       {/* Image Section */}
-      <div className="relative h-56 w-full overflow-hidden bg-gradient-warm">
+      <div className="relative h-48 w-full overflow-hidden bg-gradient-warm rounded-t-xl">
         <Image
           src={item.image}
           alt={item.name}
@@ -56,7 +56,7 @@ export default function MenuCard({ item }: { item: MenuItem }) {
       </div>
 
       {/* Content Section */}
-      <div className="p-6 flex flex-col flex-1">
+      <div className="p-5 flex flex-col flex-1">
         
         {/* Category/Origin */}
         {item.origin && (
@@ -69,22 +69,22 @@ export default function MenuCard({ item }: { item: MenuItem }) {
         )}
 
         {/* Title */}
-        <h3 className="font-display text-xl font-semibold leading-tight text-forest mb-3 group-hover:text-brass transition-colors">
+        <h3 className="font-display text-lg font-semibold leading-tight text-forest mb-2 group-hover:text-brass transition-colors">
           {item.name}
         </h3>
 
         {/* Description */}
-        <p className="font-body text-sm text-charcoal-light leading-relaxed mb-4 flex-1">
+        <p className="font-body text-sm text-charcoal-light leading-relaxed mb-3 flex-1 line-clamp-2">
           {item.description}
         </p>
 
         {/* Tasting Notes / Features */}
         {item.tastingNotes && item.tastingNotes.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {item.tastingNotes.map((note) => (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {item.tastingNotes.slice(0, 3).map((note) => (
               <span 
                 key={note} 
-                className="category-tag text-xs px-3 py-1"
+                className="category-tag text-xs px-2.5 py-0.5"
               >
                 {note}
               </span>

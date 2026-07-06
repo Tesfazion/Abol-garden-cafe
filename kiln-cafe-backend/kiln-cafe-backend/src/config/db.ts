@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
+import env from "./env";
 
 export async function connectDB(): Promise<void> {
-  const uri = process.env.MONGO_URI ?? "mongodb://localhost:27017/cafe";
-  await mongoose.connect(uri);
-  console.log(`MongoDB connected: ${uri}`);
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+
+  await mongoose.connect(env.mongoUri);
 }

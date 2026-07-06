@@ -1,12 +1,8 @@
 import jwt from "jsonwebtoken";
+import env from "../config/env";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ??
-  "7d") as jwt.SignOptions["expiresIn"];
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not set. Check your .env file.");
-}
+const JWT_SECRET = env.jwtSecret;
+const JWT_EXPIRES_IN = env.jwtExpiresIn as jwt.SignOptions["expiresIn"];
 
 export interface TokenPayload {
   sub: string; // user id

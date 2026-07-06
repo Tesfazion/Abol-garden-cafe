@@ -26,8 +26,21 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      // Redirect to account page or previous page
-      router.push("/account");
+      
+      // Get user data from localStorage to check role
+      const storedUser = localStorage.getItem("auth_user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        
+        // Redirect based on user role
+        if (user.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/account");
+        }
+      } else {
+        router.push("/account");
+      }
     } catch (err: any) {
       setError(err.message || "Invalid email or password. Please try again.");
     } finally {

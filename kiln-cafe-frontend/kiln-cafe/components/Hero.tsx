@@ -1,20 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import { SITE, VIDEOS } from "@/lib/site";
 
 export default function Hero() {
   const [videoError, setVideoError] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [playing, setPlaying] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<typeof VIDEOS[number]>(VIDEOS[0]);
+  const [randomStart, setRandomStart] = useState(true);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  useEffect(() => {
+    // pick a random video on mount
+    const idx = Math.floor(Math.random() * VIDEOS.length);
+    setSelectedVideo(VIDEOS[idx]);
+  }, []);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    const tryPlay = async () => {
+      try {
+        if (playing) {
+          // If we requested a random start, wait for metadata then set currentTime
+          if (randomStart && v.readyState >= 1 && v.duration > 0) {
+            v.currentTime = Math.random() * Math.max(0, v.duration - 1);
+            setRandomStart(false);
+          }
+          await v.play();
+        } else {
+          v.pause();
+        }
+      } catch (err) {
+        // autoplay may be blocked — ignore
+      }
+    };
+
+    tryPlay();
+  }, [playing, selectedVideo, randomStart]);
+
+  const onLoadedMetadata = () => {
+    const v = videoRef.current;
+    if (v && randomStart && v.duration > 0) {
+      v.currentTime = Math.random() * Math.max(0, v.duration - 1);
+      setRandomStart(false);
+    }
+  };
   return (
     <section className="relative min-h-[92vh] overflow-hidden bg-gradient-garden">
-      
+
       {/* Video Background */}
       {!videoError && (
         <video
+          ref={videoRef}
           autoPlay
           muted={isMuted}
           loop
@@ -22,9 +64,9 @@ export default function Hero() {
           className="absolute inset-0 h-full w-full object-cover opacity-40"
           poster="/images/logo.jpeg"
           onError={() => setVideoError(true)}
+          onLoadedMetadata={onLoadedMetadata}
         >
-          <source src="/videos/garden-1.mp4" type="video/mp4" />
-          <source src="/videos/Download.mp4" type="video/mp4" />
+          <source src={selectedVideo.src} type="video/mp4" />
         </video>
       )}
 
@@ -35,6 +77,7 @@ export default function Hero() {
             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070"
             alt="Restaurant ambiance"
             fill
+            sizes="100vw"
             className="object-cover opacity-40"
             priority
           />
@@ -112,7 +155,7 @@ export default function Hero() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-wrap gap-4 animate-slide-up">
+        <div className="flex flex-wrap gap-4 items-center animate-slide-up">
           <Link
             href="/menu"
             className="btn btn-primary btn-lg group"
@@ -122,7 +165,7 @@ export default function Hero() {
             </svg>
             Explore Our Menu
           </Link>
-          
+
           <Link
             href="/booking"
             className="btn btn-outline btn-lg text-white border-white hover:bg-white hover:text-forest"
@@ -132,7 +175,7 @@ export default function Hero() {
             </svg>
             Reserve a Table
           </Link>
-          
+
           <a
             href={`tel:${SITE.phone.replace(/\s/g, '')}`}
             className="btn btn-ghost btn-lg text-white hover:bg-white/10"
@@ -142,26 +185,50 @@ export default function Hero() {
             </svg>
             Call Us
           </a>
+
+          {/* Small quick-info card */}
+          <div className="ml-2 hidden md:flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-3 px-4">
+            <div className="text-sm text-cream/90">Open: <span className="font-semibold">7:00 AM</span></div>
+            <div className="text-sm text-cream/90">Today's special: <span className="font-semibold">Abole Special</span></div>
+          </div>
         </div>
 
-        {/* Sound Control */}
+        {/* Sound & Playback Controls */}
         {!videoError && (
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            className="absolute bottom-8 right-8 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
-            aria-label={isMuted ? "Unmute video" : "Mute video"}
-          >
-            {isMuted ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-              </svg>
-            )}
-          </button>
+          <div className="absolute bottom-8 right-8 flex gap-3">
+            <button
+              onClick={() => setPlaying((p) => !p)}
+              className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+              aria-label={playing ? "Pause video" : "Play video"}
+            >
+              {playing ? (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M6 19h4V5H6v14zM14 5v14h4V5h-4z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M5 3v18l15-9L5 3z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+
+            <button
+              onClick={() => setIsMuted((m) => !m)}
+              className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
+            >
+              {isMuted ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+              )}
+            </button>
+          </div>
         )}
 
         {/* Scroll Indicator */}
